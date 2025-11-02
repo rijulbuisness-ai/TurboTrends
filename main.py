@@ -65,40 +65,14 @@ def fetch_news():
         return []
 
 def summarize_article(article):
-    """Use OpenAI to summarize article and generate a catchy headline"""
-    openai.api_key = os.getenv('OPENAI_API_KEY')
-    
-    # Combine title and content for context
-    content = f"Title: {article['title']}\n\nContent: {article['description'] or article['content'] or ''}"
-    
+    """Use local AI models to summarize article and generate a catchy headline"""
     try:
-        # Generate summary
-        summary_response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a news editor who creates concise summaries and engaging headlines."},
-                {"role": "user", "content": f"Please summarize this news article in 2-3 sentences and create a catchy headline under 120 characters:\n\n{content}"}
-            ],
-            temperature=0.7,
-            max_tokens=150
-        )
-        
-        summary_text = summary_response.choices[0].message.content.strip()
-        
-        # Split the response into headline and summary
-        parts = summary_text.split('\n\n', 1)
-        headline = parts[0].replace('Headline: ', '')
-        summary = parts[1] if len(parts) > 1 else headline
-        
-        return {
-            'headline': headline,
-            'summary': summary
-        }
+        return summarize_with_ai(article)
     except Exception as e:
-        print(f"❌ Error summarizing article: {str(e)}")
+        logging.error(f"Error summarizing article: {str(e)}")
         return {
-            'headline': article['title'],
-            'summary': article['description'] or ''
+            'headline': article.get('title', 'No Title')[:120],
+            'summary': article.get('description', '')[:200]
         }
 
 def create_table(conn):
