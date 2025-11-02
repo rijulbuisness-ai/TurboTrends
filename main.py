@@ -207,36 +207,59 @@ def run_news_cycle(conn, twitter_poster, deduplicator):
 if __name__ == "__main__":
     # Initialize connections
     conn = connect_db()
-    twitter_client = init_twitter()
-    
-    if not conn or not twitter_client:
-        logging.error("Failed to initialize required connections. Exiting.")
+    twitter_poster = None
+    deduplicator = None
+
+    if not conn:
+        logging.error("Failed to connect to database. Exiting.")
         sys.exit(1)
-    
+
     try:
         create_table(conn)
-        
+
+        # Initialize components
+        deduplicator = EnhancedDeduplicator(conn)
+        twitter_poster = init_twitter()
+
+        if not twitter_poster:
+            logging.warning("Twitter initialization failed. Bot will run without posting.")
+
         # Configuration
         check_interval = int(os.getenv('CHECK_INTERVAL_MINUTES', '15'))  # Default to 15 minutes
-        logging.info(f"Bot started. Checking for news every {check_interval} minutes")
-        
+        logging.info(f"Free AI News Bot started. Checking for news every {check_interval} minutes")
+        logging.info("Using: RSS feeds + Local AI + Web automation")
+
         last_check = datetime.now() - timedelta(minutes=check_interval)  # Ensure first run happens immediately
-        
+
         while running:
             current_time = datetime.now()
-            
+
             # Check if it's time for the next cycle
             if (current_time - last_check).total_seconds() >= check_interval * 60:
                 logging.info("Starting news check cycle...")
-                conn = run_news_cycle(conn, twitter_client)
+                conn = run_news_cycle(conn, twitter_poster, deduplicator)
                 last_check = current_time
-            
+
             # Sleep for a short time to prevent CPU overuse
             time.sleep(60)  # Check every minute if it's time for the next cycle
-            
+
     except Exception as e:
         logging.error(f"Critical error in main process: {str(e)}")
     finally:
         logging.info("Bot shutting down...")
+
+        # Cleanup resources
+        if twitter_poster:
+            try:
+                twitter_poster.cleanup()
+            except Exception as e:
+                logging.warning(f"Error cleaning up Twitter poster: {str(e)}")
+
+        if deduplicator:
+            try:
+                deduplicator.cleanup_old_hashes()
+            except Exception as e:
+                logging.warning(f"Error cleaning up deduplicator: {str(e)}")
+
         if conn:
             conn.close()
