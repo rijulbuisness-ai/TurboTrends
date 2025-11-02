@@ -102,29 +102,40 @@ def create_table(conn):
     except Exception as e:
         logging.warning(f"Could not initialize enhanced deduplication: {str(e)}")
 
-def insert_article(conn, article_data):
+def insert_article(conn, article_data, deduplicator):
     cursor = conn.cursor()
     try:
+        # Enhanced deduplication check
+        duplicate_check = deduplicator.check_duplicates(article_data)
+        if duplicate_check['is_duplicate']:
+            logging.debug(f"Duplicate article detected: {duplicate_check['reason']}")
+            return False
+
+        # Add hashes to article data
+        enhanced_article = deduplicator.get_article_with_hashes(article_data)
+
         cursor.execute("""
-            INSERT INTO articles (title, summary, original_title, source, url, published_at)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO articles (title, summary, original_title, source, url, published_at, content_hash, semantic_hash)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT (url) DO NOTHING
             RETURNING id;
         """, (
-            article_data['headline'],
-            article_data['summary'],
-            article_data['original_title'],
-            article_data['source'],
-            article_data['url'],
-            article_data['published_at']
+            enhanced_article['headline'],
+            enhanced_article['summary'],
+            enhanced_article['original_title'],
+            enhanced_article['source'],
+            enhanced_article['url'],
+            enhanced_article['published_at'],
+            enhanced_article.get('content_hash'),
+            enhanced_article.get('semantic_hash')
         ))
         result = cursor.fetchone()
         conn.commit()
         if result:
-            logging.info(f"New article added: '{article_data['headline']}'")
+            logging.info(f"New article added: '{enhanced_article['headline']}'")
             return True
         else:
-            logging.debug(f"Article already exists: '{article_data['headline']}'")
+            logging.debug(f"Article already exists: '{enhanced_article['headline']}'")
             return False
     except Exception as e:
         logging.error(f"Error inserting article: {str(e)}")
