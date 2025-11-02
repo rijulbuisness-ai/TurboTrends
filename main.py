@@ -1,14 +1,17 @@
 import os
-import requests
-import openai
 import psycopg2
-import tweepy
 import time
 import signal
 import logging
 import sys
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
+
+# Import new free modules
+from news_fetcher import fetch_from_all_sources
+from summarizer import summarize_with_ai
+from deduplicator import EnhancedDeduplicator
+from twitter_poster import TwitterWebPoster
 
 # Configure logging
 logging.basicConfig(
