@@ -55,21 +55,10 @@ def connect_db():
         return None
 
 def fetch_news():
-    """Fetch news articles from News API"""
-    api_key = os.getenv('NEWS_API_KEY')
-    url = 'https://newsapi.org/v2/top-headlines'
-    
-    params = {
-        'apiKey': api_key,
-        'language': 'en',
-        'pageSize': 10  # Fetch 10 articles at a time
-    }
-    
+    """Fetch news articles using free RSS feeds and web scraping"""
     try:
-        response = requests.get(url, params=params)
-        response.raise_for_status()
-        articles = response.json()['articles']
-        logging.info(f"Successfully fetched {len(articles)} articles from News API")
+        articles = fetch_from_all_sources()
+        logging.info(f"Successfully fetched {len(articles)} articles from free sources")
         return articles
     except Exception as e:
         logging.error(f"Error fetching news: {str(e)}")
