@@ -166,24 +166,24 @@ def init_twitter():
         logging.error(f"Error initializing Twitter client: {str(e)}")
         return None
 
-def process_article(article, conn, twitter_client):
+def process_article(article, conn, twitter_poster, deduplicator):
     """Process a single article through the pipeline"""
     # Generate summary and headline
     processed = summarize_article(article)
-    
+
     article_data = {
         'headline': processed['headline'],
         'summary': processed['summary'],
         'original_title': article['title'],
-        'source': article['source']['name'],
-        'url': article['url'],
-        'published_at': datetime.strptime(article['publishedAt'], '%Y-%m-%dT%H:%M:%SZ')
+        'source': article['source'],
+        'url': article['link'],  # RSS feeds use 'link' instead of 'url'
+        'published_at': article['published_at'] if isinstance(article['published_at'], datetime) else datetime.now()
     }
-    
-    # Insert into database
-    if insert_article(conn, article_data):
+
+    # Insert into database with enhanced deduplication
+    if insert_article(conn, article_data, deduplicator):
         # Post to Twitter only if it's a new article
-        post_tweet(twitter_client, article_data['headline'], article_data['url'])
+        post_tweet(twitter_poster, article_data['headline'], article_data['url'])
 
 def run_news_cycle(conn, twitter_client):
     """Run one cycle of news fetching and processing"""
