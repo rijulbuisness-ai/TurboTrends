@@ -1,0 +1,34 @@
+# Free AI News Bot Dependencies
+# Replaces paid APIs with free alternatives
+
+# Core dependencies (existing)
+psycopg2-binary==2.9.9
+python-dotenv==1.0.0
+requests==2.31.0
+
+# News aggregation (replaces News API)
+feedparser==6.0.10
+beautifulsoup4==4.12.2
+scrapy==2.11.0
+requests-html==0.10.0
+
+# AI summarization (replaces OpenAI API)
+transformers==4.36.0
+torch==2.1.0
+sentencepiece==0.1.99
+
+# Enhanced deduplication
+dedupe==2.0.6
+text-dedup==0.1.1
+python-Levenshtein==0.23.0
+
+# Twitter web automation (replaces Twitter API)
+selenium==4.16.0
+webdriver-manager==4.0.1
+undetected-chromedriver==3.5.4
+
+# Extractive summarization fallback
+sumy==0.11.0
+
+# Additional utilities
+nltk==3.8.1
