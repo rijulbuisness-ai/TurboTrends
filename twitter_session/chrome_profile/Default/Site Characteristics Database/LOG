@@ -1,2 +1,5 @@
-2025/11/02-16:49:21.012 fb7 Creating DB /workspace/cmhhwwv4b02hhtmim0f5vsum0/TurboTrends/twitter_session/chrome_profile/Default/Site Characteristics Database since it was missing.
-2025/11/02-16:49:21.027 fb7 Delete type=3 #1
+2025/11/02-16:49:45.708 107f Recovering log #3
+2025/11/02-16:49:45.708 107f Level-0 table #5: started
+2025/11/02-16:49:45.713 107f Level-0 table #5: 130 bytes OK
+2025/11/02-16:49:45.722 107f Delete type=0 #3
+2025/11/02-16:49:45.722 107f Delete type=3 #2

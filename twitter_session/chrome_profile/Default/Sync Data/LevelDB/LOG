@@ -1,2 +1,5 @@
-2025/11/02-16:49:20.996 fa9 Creating DB /workspace/cmhhwwv4b02hhtmim0f5vsum0/TurboTrends/twitter_session/chrome_profile/Default/Sync Data/LevelDB since it was missing.
-2025/11/02-16:49:21.000 fa9 Delete type=3 #1
+2025/11/02-16:49:45.701 1076 Recovering log #3
+2025/11/02-16:49:45.702 1076 Level-0 table #5: started
+2025/11/02-16:49:45.709 1076 Level-0 table #5: 178 bytes OK
+2025/11/02-16:49:45.718 1076 Delete type=0 #3
+2025/11/02-16:49:45.718 1076 Delete type=3 #2
