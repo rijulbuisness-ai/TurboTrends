@@ -86,12 +86,21 @@ def create_table(conn):
             source TEXT,
             url TEXT UNIQUE,
             published_at TIMESTAMP,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            content_hash VARCHAR(64),
+            semantic_hash VARCHAR(64)
         );
     """)
     conn.commit()
     cursor.close()
     logging.info("Database table 'articles' ready")
+
+    # Initialize enhanced deduplication schema
+    try:
+        deduplicator = EnhancedDeduplicator(conn)
+        logging.info("Enhanced deduplication schema initialized")
+    except Exception as e:
+        logging.warning(f"Could not initialize enhanced deduplication: {str(e)}")
 
 def insert_article(conn, article_data):
     cursor = conn.cursor()
