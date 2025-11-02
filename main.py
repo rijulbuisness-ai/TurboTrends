@@ -144,31 +144,26 @@ def insert_article(conn, article_data, deduplicator):
     finally:
         cursor.close()
 
-def post_tweet(client, headline, url):
-    """Post a tweet with the headline and URL"""
+def post_tweet(twitter_poster, headline, url):
+    """Post a tweet using web automation"""
     try:
-        tweet_text = f"{headline}\n\n{url}"
-        client.update_status(status=tweet_text)
-        logging.info(f"Tweet posted successfully: {headline}")
-        return True
+        result = twitter_poster.post_to_twitter(headline, url)
+        if result['success']:
+            logging.info(f"Tweet posted successfully: {headline}")
+            return True
+        else:
+            logging.warning(f"Tweet posting failed: {result['reason']} - {result['details']}")
+            return False
     except Exception as e:
         logging.error(f"Error posting tweet: {str(e)}")
         return False
 
 def init_twitter():
-    """Initialize Twitter API client"""
+    """Initialize Twitter web automation client"""
     try:
-        auth = tweepy.OAuthHandler(
-            os.getenv('TWITTER_API_KEY'),
-            os.getenv('TWITTER_API_SECRET')
-        )
-        auth.set_access_token(
-            os.getenv('TWITTER_ACCESS_TOKEN'),
-            os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
-        )
-        return tweepy.API(auth)
+        return TwitterWebPoster()
     except Exception as e:
-        print(f"❌ Error initializing Twitter client: {str(e)}")
+        logging.error(f"Error initializing Twitter client: {str(e)}")
         return None
 
 def process_article(article, conn, twitter_client):
