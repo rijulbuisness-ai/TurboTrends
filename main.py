@@ -185,18 +185,18 @@ def process_article(article, conn, twitter_poster, deduplicator):
         # Post to Twitter only if it's a new article
         post_tweet(twitter_poster, article_data['headline'], article_data['url'])
 
-def run_news_cycle(conn, twitter_client):
+def run_news_cycle(conn, twitter_poster, deduplicator):
     """Run one cycle of news fetching and processing"""
     try:
         articles = fetch_news()
         processed_count = 0
-        
+
         for article in articles:
-            if process_article(article, conn, twitter_client):
+            if process_article(article, conn, twitter_poster, deduplicator):
                 processed_count += 1
-                
+
         logging.info(f"Cycle completed: {len(articles)} articles found, {processed_count} new articles processed")
-        
+
     except Exception as e:
         logging.error(f"Error in news cycle: {str(e)}")
         # Reconnect to database if connection was lost
